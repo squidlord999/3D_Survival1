@@ -1,0 +1,86 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+ 
+public class AI_Movement : MonoBehaviour
+{
+ 
+    Animator animator;
+ 
+    public float moveSpeed = 0.2f;
+ 
+    Vector3 stopPosition;
+ 
+    float walkTime;
+    public float walkCounter;
+    float waitTime;
+    public float waitCounter;
+ 
+    int WalkDirection;
+ 
+    public bool isWalking;
+ 
+    // Start is called before the first frame update
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+ 
+        //So that all the prefabs don't move/stop at the same time
+        walkTime = Random.Range(3,6);
+        waitTime = Random.Range(5,7);
+ 
+        waitCounter = waitTime;
+        walkCounter = walkTime;
+ 
+        ChooseDirection();
+    }
+ 
+    // Update is called once per frame
+    void Update()
+    {
+        if (isWalking)
+        {
+ 
+            animator.SetBool("isRunning", true);
+ 
+            walkCounter -= Time.deltaTime;
+
+            transform.localRotation = Quaternion.Euler(0f, WalkDirection * 45, 0f);//8 directions (0-7) each 45 degrees apart
+            transform.position += transform.forward * moveSpeed * Time.deltaTime;//move in the chosen direction
+        
+ 
+            if (walkCounter <= 0)
+            {
+                stopPosition = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+                isWalking = false;
+                //stop movement
+                transform.position = stopPosition;
+                animator.SetBool("isRunning", false);
+                //reset the waitCounter
+                waitCounter = Random.Range(waitTime - 2, waitTime + 2);
+            }
+ 
+ 
+        }
+        else
+        {
+ 
+            waitCounter -= Time.deltaTime;
+ 
+            if (waitCounter <= 0)
+            {
+                ChooseDirection();
+            }
+        }
+    }
+ 
+ 
+    public void ChooseDirection()
+    {
+        WalkDirection = Random.Range(0, 8);
+ 
+        isWalking = true;
+        walkCounter = Random.Range(walkTime-2, walkTime+2);
+    }
+}
